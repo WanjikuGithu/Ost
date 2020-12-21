@@ -1,0 +1,43 @@
+# Installing postgresql and postgis 
+sudo apt-get update  
+sudo apt-get -y install postgresql postgresql-contrib postgis postgresql-9.6-postgis-2.3  
+sudo apt-get -y install default-jdk 
+sudo apt-get -y install tomcat8 
+sudo apt-get -y install zip 
+sudo apt-get -y install unzip
+
+# Installing geoserver  
+cd /var/lib/tomcat8/webapps
+sudo wget http://sourceforge.net/projects/geoserver/files/GeoServer/2.14.0/geoserver-2.14.0-war.zip 
+sudo unzip geoserver-2.14.0-war.zip 
+cd
+sudo wget https://build.geoserver.org/geoserver/2.14.x/ext-latest/geoserver-2.14-SNAPSHOT-css-plugin.zip
+sudo sh -c "unzip geoserver-2.14-SNAPSHOT-css-plugin.zip -d /var/lib/tomcat8/webapps/geoserver/WEB-INF/lib"
+
+# Installing git
+sudo apt-get -y install git 
+git clone https://github.com/WanjikuGithu/Ost.git
+sudo sh -c "cd /var/lib/tomcat8/webapps/geoserver; mkdir data-bkp"
+sudo sh -c "cd /var/lib/tomcat8/webapps/geoserver; mv data /var/lib/tomcat8/webapps/geoserver/data-bkp"
+cd /home/gcptest318/Ost
+sudo tar -C /var/lib/tomcat8/webapps/geoserver -xzf data.tar.gz
+cd
+
+# Install gdrive as a prerequisite
+wget -O gdrive "https://docs.google.com/uc?id=0B3X9GlR6EmbnLV92dHBpTkFhTEU&export=download" 
+sudo chmod +x gdrive 
+sudo install gdrive /usr/local/bin/gdrive
+
+# gmail account to use and password 
+gdrive list 
+gdrive list | grep data.gz 
+gdrive download -r 13iqGGV9huoyq7dEbSiuAbPID__WwzOl5
+cd
+sudo mv data.gz ~postgres/
+sudo -u postgres createdb data
+sudo -u postgres gunzip data.gz | psql -v ON_ERROR_STOP=1 data
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';" 
+cd 
+sudo systemctl restart tomcat8
+
+
